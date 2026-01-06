@@ -1,4 +1,3 @@
-
 function parse(tokens){
   let pos = 0;
   function peek() { return tokens[pos] }
@@ -38,6 +37,25 @@ function parse(tokens){
         pos++;
         const val = get();
         return {type: "Print", val}
+    }
+    else if(peek() === "add"){
+      pos++;
+      if(peek() === '{'){
+        pos++  
+        let vars = [];
+        while(peek() !== '}'){
+          vars.push(get())
+        }
+        consume("}")
+        consume("the")
+        const val = get();
+        console.log({type: "SerevalInc", vars, val})
+        return {type: "SerevalInc", vars, val}
+      }else{
+        const name = get();
+        const val = get();
+        return {type: "Inc", name, val}
+      }
     }
     else if(peek() === "manually"){
       pos++;
@@ -123,13 +141,13 @@ function parse(tokens){
     else if(peek() === "if"){
       pos++;
       const name = get();
-      consume("==")
+      const op = get();
       const val = get();
       const body = parseBlock();
       //while(peek() !== "end")
 //        body.push((parseStatement()));
 //      consume("end")
-      return { type: "If", name, val, body}
+      return { type: "If", name,op, val, body}
     }
     else if(peek() === "when"){
       pos++;

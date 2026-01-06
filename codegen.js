@@ -66,6 +66,15 @@ function generateNASM(ast) {
       }
     }
 
+    else if(node.type === "SerevalInc"){
+      asm.push(`mov edx, ${node.val}`)
+      for(const valv of node.vars){
+        const v = vars[valv]
+        asm.push(`add dword [rbp-${v.offset}], edx`)
+      }
+      asm.push("xor edx, edx")
+    }
+
     else if(node.type === "Get"){
       const v = vars[node.name]
       if(!v) throw new Error("unknown variable " + node.val);
@@ -186,7 +195,10 @@ function generateNASM(ast) {
       if(!v) throw new Error("unknown variable " + node.val);
       ifoff++;
       asm.push(`cmp byte [rbp-${v.offset}], ${node.val}`)
-      asm.push(`jne nextmain${ifoff}`)
+      if(node.op === '==')
+        asm.push(`jne nextmain${ifoff}`)
+      else if(node.op === '!=')
+        asm.push(`je nextmain${ifoff}`)
       compileBlock(node.body)
       asm.push(`nextmain${ifoff}:`)
     }

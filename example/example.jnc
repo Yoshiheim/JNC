@@ -4,10 +4,6 @@ string str = "sdfsdfs"
 string fuck = "fucking"
 int a = 0
 
-if a == 0 {
-
-}
-
 procedure main{
     print s
     direct "putchar" (
@@ -15,6 +11,19 @@ procedure main{
         rsi: 0
     ) 
 }
+
+doitagain:
+
+if a != 50 {
+    print a
+    print f
+    add {
+        a
+        f
+    } the 2
+    goto doitagain
+}
+
 
 print s
 
