@@ -1,0 +1,21 @@
+manually 256
+include "./example/mod.jnc"
+string str = "sdfsdfs"
+string fuck = "fucking"
+int a = 0
+
+if a == 0 {
+
+}
+
+procedure main{
+    print s
+    direct "putchar" (
+        rdx: integer load
+        rsi: 0
+    ) 
+}
+
+print s
+
+call main
