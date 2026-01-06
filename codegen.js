@@ -10,6 +10,7 @@ function generateNASM(ast) {
   let strId = 0;
   let rptId = 0;
   let procId = 0;
+  let whileId = 0;
 
 
   asm.push("bits 64");
@@ -46,27 +47,31 @@ function generateNASM(ast) {
 
       if (node.vartype === "char") {
         const ch = node.value.replace(/'/g, "").charCodeAt(0);
-        asm.push(`mov byte [rbp-${offset}], ${ch}`);
+        asm.push(`mov byte [rbp-${offset}], ${ch}; ${node.name}`);
       } else if(node.vartype === "string"){
         const lbl = `str_${strId++}`;
         const text = node.value.slice(1, -1); // убрать "
 
         asm.unshift(
-        `section .rodata\n${lbl}: db "${text}", 0`
+        `section .rodata\n${lbl}: db "${text}", 0 ; for ${node.name}`
         );
 
         offset += 8;
         vars[node.name] = { offset, type: "string" };
 
-        asm.push(`lea rax, [rel ${lbl}]`);
+        asm.push(`lea rax, [rel ${lbl}]; ${node.name}`);
         asm.push(`mov [rbp-${offset}], rax`);
         return;  
       }else {
-        asm.push(`mov dword [rbp-${offset}], ${node.value}`);
+        asm.push(`mov dword [rbp-${offset}], ${node.value}; ${node.name}`);
       }
     }
 
-    else if(node.type === "SerevalInc"){
+    else if(node.type === "SerevalChange"){
+      const opperands = ['add', 'dec', 'mul', 'dis']
+      const includesOp = opperands.some(ops => ops === node.op)
+      if(!includesOp)
+        throw new Error("WHERE NORMAL OPERANDS, bro!")
       asm.push(`mov edx, ${node.val}`)
       for(const valv of node.vars){
         const v = vars[valv]
@@ -189,8 +194,29 @@ function generateNASM(ast) {
       */
     }
 
+    else if(node.type === "WhileLoop"){
+      whileId++;
+      if(!Array.isArray(node.body)){
+        throw new Error("F__K YOU ITS NOT ARRAY")
+      }
+      const va = vars[node.a]
+      const vb = vars[node.b]
+      
+      asm.push(`whl${whileId}:`)
+
+      compileBlock(node);
+      
+
+      asm.push(`mov edx, dword [rbp-${vb.offset}]`)
+      asm.push(`cmp dword [rbp-${va.offset}], edx`)
+      if(node.op === "!=")
+        asm.push(`jne whl${whileId}`)
+      else if(node.op === "==")
+        asm.push(`je whl${whileId}`)
+
+    }
+
     else if(node.type === "If") {// { type: "If", name, val, body}
-      console.log(node)
       const v = vars[node.name]
       if(!v) throw new Error("unknown variable " + node.val);
       ifoff++;

@@ -38,25 +38,6 @@ function parse(tokens){
         const val = get();
         return {type: "Print", val}
     }
-    else if(peek() === "add"){
-      pos++;
-      if(peek() === '{'){
-        pos++  
-        let vars = [];
-        while(peek() !== '}'){
-          vars.push(get())
-        }
-        consume("}")
-        consume("the")
-        const val = get();
-        console.log({type: "SerevalInc", vars, val})
-        return {type: "SerevalInc", vars, val}
-      }else{
-        const name = get();
-        const val = get();
-        return {type: "Inc", name, val}
-      }
-    }
     else if(peek() === "manually"){
       pos++;
       const val = get();
@@ -66,6 +47,14 @@ function parse(tokens){
       pos++;
       const name = get();
       return {type: "Include", name}
+    }
+    else if(peek() === "while"){
+      pos++;
+      const a = get();
+      const op = get();
+      const b = get();
+      const body = parseBlock() 
+      return { type: "WhileLoop", a, op, b, body:body.body }
     }
     else if(peek() === 'uwu'){
       pos++;
@@ -182,6 +171,16 @@ function parse(tokens){
         if(vartype === "call"){
             return {type: "FuncCall", name}
         }
+        if(name === "{"){
+          let vars = [];
+          while(peek() !== '}'){
+            vars.push(get())
+          }
+          consume("}")
+          consume("on")
+          const val = get();
+          return {type: "SerevalChange",op:vartype ,vars, val}
+      }
         if(name === '<~'){
         const bvar = get();
         return {

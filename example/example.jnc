@@ -1,8 +1,11 @@
 manually 256
 include "./example/mod.jnc"
+include "./example/pos.jnc"
 string str = "sdfsdfs"
 string fuck = "fucking"
 int a = 0
+
+int MAX = 50
 
 procedure main{
     print s
@@ -12,19 +15,10 @@ procedure main{
     ) 
 }
 
-doitagain:
-
-if a != 50 {
+while a != MAX{
     print a
-    print f
-    add {
-        a
-        f
-    } the 2
-    goto doitagain
+    print MAX
+    add { a } on 5
 }
 
-
-print s
-
-call main
+print a

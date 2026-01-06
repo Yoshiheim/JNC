@@ -1,9 +1,9 @@
 section .rodata
-str_2: db "fucking", 0
+str_2: db "fucking", 0 ; for fuck
 section .rodata
-str_1: db "sdfsdfs", 0
+str_1: db "sdfsdfs", 0 ; for str
 section .rodata
-str_0: db "includes works!", 0
+str_0: db "includes works!", 0 ; for s
 bits 64
 default rel
 extern putchar
@@ -20,14 +20,17 @@ main:
 push rbp
 mov rbp, rsp
 sub rsp, 256
-lea rax, [rel str_0]
+lea rax, [rel str_0]; s
 mov [rbp-12], rax
-mov dword [rbp-16], 0
-lea rax, [rel str_1]
-mov [rbp-28], rax
-lea rax, [rel str_2]
-mov [rbp-40], rax
-mov dword [rbp-44], 0
+mov dword [rbp-16], 0; f
+mov dword [rbp-20], 0; x
+mov dword [rbp-24], 0; y
+lea rax, [rel str_1]; str
+mov [rbp-36], rax
+lea rax, [rel str_2]; fuck
+mov [rbp-48], rax
+mov dword [rbp-52], 0; a
+mov dword [rbp-56], 50; MAX
 jmp proc1
 procmain:
 lea rdi, [rel fmt_str]
@@ -40,36 +43,31 @@ xor eax, eax
 call putchar
 ret
 proc1:
-doitagain:
-cmp byte [rbp-44], 50
-je nextmain1
-mov edi, dword [rbp-44]
+whl1:
+mov edi, dword [rbp-52]
 lea rdi, [rel fmt_int]
-mov esi, dword [rbp-44]
+mov esi, dword [rbp-52]
 xor eax, eax
 call printf
 
-mov edi, dword [rbp-16]
+mov edi, dword [rbp-56]
 lea rdi, [rel fmt_int]
-mov esi, dword [rbp-16]
+mov esi, dword [rbp-56]
 xor eax, eax
 call printf
 
-mov edx, 2
-add dword [rbp-44], edx
-add dword [rbp-16], edx
+mov edx, 5
+add dword [rbp-52], edx
 xor edx, edx
 
-jmp doitagain
-
-call procmain
-
-nextmain1:
-lea rdi, [rel fmt_str]
-mov rsi, [rbp-12]
+mov edx, dword [rbp-56]
+cmp dword [rbp-52], edx
+jne whl1
+mov edi, dword [rbp-52]
+lea rdi, [rel fmt_int]
+mov esi, dword [rbp-52]
 xor eax, eax
 call printf
-call procmain
 xor eax, eax
 leave
 ret
