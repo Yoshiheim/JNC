@@ -1,24 +1,15 @@
 manually 256
 include "./example/mod.jnc"
 include "./example/pos.jnc"
-string str = "sdfsdfs"
-string fuck = "fucking"
-int a = 0
 
-int MAX = 50
+string strmacro = "sdfsdfsd"
 
-procedure main{
-    print s
-    direct "putchar" (
-        rdx: integer load
-        rsi: 0
-    ) 
+macro PRINT {
+    print strmacro
+
 }
 
-while a != MAX{
-    print a
-    print MAX
-    add { a } on 5
-}
+strmacro <~ "sss"
 
-print a
+use PRINT
+

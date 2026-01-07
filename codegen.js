@@ -6,6 +6,7 @@ function generateNASM(ast) {
   const asm = [];
   let offset = 0;
   const vars = {}; // name -> { offset, type }
+  const macros = {};
   let ifoff = 0;
   let strId = 0;
   let rptId = 0;
@@ -38,6 +39,23 @@ function generateNASM(ast) {
         asm.push(compileNode(newnode))
   }
 
+  function ValidateVar(name){
+    const v = vars[name]
+    if(!v) throw new Error("unknown variable " + name);
+    return v
+  }
+
+  function NewVar(name, type){
+    if(type === "int"){
+      offset += 4;
+      const result = vars[name] = {offset, type: type}
+      return result;
+    }
+    else
+      throw new Error("Unknow type: " + type)    
+  }
+
+
   function compileNode(node){
     
     
@@ -67,6 +85,17 @@ function generateNASM(ast) {
       }
     }
 
+    else if(node.type === "Macro"){
+      macros[node.name] = node.body
+      //console.log(macros[node.name])
+    }
+
+    else if(node.type === "Use"){
+      asm.push(`; BEGIN MACRO ${node.name}`)
+      compileBlock(macros[node.name])
+      asm.push(`; END MACRO ${node.name}`)
+    }
+
     else if(node.type === "SerevalChange"){
       const opperands = ['add', 'dec', 'mul', 'dis']
       const includesOp = opperands.some(ops => ops === node.op)
@@ -94,8 +123,17 @@ function generateNASM(ast) {
     else if(node.type === "MoveVars"){
       const av = vars[node.avar];
       const bv = vars[node.bvar];
-      if(!av || !bv) throw new Error("unknown variable");
-      asm.push(`mov edx, dword [rbp-${bv.offset}]`)
+      if(!bv){
+        const lbl = `str_${strId++}`;
+        const text = node.bvar.slice(1, -1);
+        
+        asm.unshift(`section .rodata\n${lbl}: db "${text}", 0 ; copy to ${node.avar}`)
+        asm.push(`lea edx, [rel ${lbl}] `);
+        asm.push(`mov [rbp-${av.offset}], rax`) 
+        asm.push(`mov edx, [rbp-${av.offset}]`)  
+      }
+      else
+        asm.push(`mov edx, dword [rbp-${bv.offset}]`)
       //asm.push(`sub rbp, ${bv.offset}`)
       asm.push(`mov dword [rbp-${av.offset}], edx` )
     }

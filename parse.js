@@ -48,6 +48,20 @@ function parse(tokens){
       const name = get();
       return {type: "Include", name}
     }
+
+    else if(peek() === "macro"){
+      pos++;
+      const name = get();
+      const body = parseBlock();
+      return { type: "Macro", name, body}
+    }
+
+    else if(peek() === "use"){
+      pos++;
+      const name = get();
+      return {type: "Use", name}
+    }
+
     else if(peek() === "while"){
       pos++;
       const a = get();
